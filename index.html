@@ -30,16 +30,23 @@
             <span class="nav-logo-text">Ninblu</span>
         </div>
         
-        <div class="nav-links" id="nav-menu">
-            <div class="nav-bubble"></div>
-            <a href="#hero" class="nav-item active">Inicio</a>
-            <a href="#about" class="nav-item">Nosotros</a>
-            <a href="#team" class="nav-item">Equipo</a>
-            <a href="#know-us" class="nav-item">Servicios</a>
-            <a href="#projects" class="nav-item">Proyectos</a>
+        <div class="hamburger" onclick="toggleMenu()">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
         </div>
 
-        <a href="#contact" class="cta-btn">CONTACTO</a>
+        <div class="nav-container">
+            <div class="nav-links" id="nav-menu">
+                <div class="nav-bubble"></div>
+                <a href="#hero" class="nav-item active" onclick="closeMenu()">Inicio</a>
+                <a href="#about" class="nav-item" onclick="closeMenu()">Nosotros</a>
+                <a href="#team" class="nav-item" onclick="closeMenu()">Equipo</a>
+                <a href="#know-us" class="nav-item" onclick="closeMenu()">Servicios</a>
+                <a href="#projects" class="nav-item" onclick="closeMenu()">Proyectos</a>
+            </div>
+            <a href="#contact" class="cta-btn mobile-cta" onclick="closeMenu()">CONTACTO</a>
+        </div>
     </nav>
 
     <section id="hero" class="hero">
@@ -61,15 +68,15 @@
         <div class="cards-grid">
             <div class="tilt-card" data-tilt>
                 <h3>Visión Mística</h3>
-                <p>Forjamos identidades que trascienden la pantalla. El código es nuestro ritual.</p>
+                <p>Forjamos identidades que trascienden la pantalla. El código es nuestro ritual para evocar emociones.</p>
             </div>
             <div class="tilt-card" data-tilt>
                 <h3>Estrategia Visual</h3>
-                <p>Guiamos al usuario en un viaje sensorial hacia tu marca mediante diseño intencional.</p>
+                <p>Guiamos al usuario en un viaje sensorial hacia tu marca mediante diseño intencional y animaciones fluidas.</p>
             </div>
             <div class="tilt-card" data-tilt>
                 <h3>Tecnología Fluida</h3>
-                <p>Adaptabilidad total. Como el agua, tomamos la forma que tu proyecto necesita.</p>
+                <p>Adaptabilidad total. Como el agua, tomamos la forma que tu proyecto necesita, en cualquier dispositivo.</p>
             </div>
         </div>
     </section>
@@ -77,33 +84,51 @@
     <section id="team">
         <div class="section-header">
             <h2>Mentes <span>Maestras</span></h2>
-            <p>Los arquitectos de lo imposible.</p>
+            <p>Desbloquea el potencial de nuestro equipo.</p>
         </div>
-        <div class="team-container">
-            <div class="team-member">
-                <div class="img-box">
-                    <img src="assets/ponja.jpg" alt="Lider">
-                    <div class="team-icon"><div class="ninblu-icon"></div></div>
+
+        <div class="team-reveal-stage">
+            
+            <div class="booster-pack" id="pack">
+                <div class="click-trigger trigger-left" onclick="abrirSobre('left')"></div>
+                <div class="click-trigger trigger-right" onclick="abrirSobre('right')"></div>
+                <div class="pack-top"></div>
+                <div class="pack-body">
+                    <div class="ninblu-icon nav-size" style="margin-bottom: 1rem;"></div>
+                    <div class="pack-logo">NINBLU<br>SQUAD</div>
+                    <div class="pack-instruction">TAP TO DECRYPT</div>
                 </div>
-                <h3>Teodoro Wojtek</h3>
-                <p class="member-role">Un gei</p>
             </div>
-            <div class="team-member">
-                <div class="img-box">
-                    <img src="assets/ponja.jpg" alt="Dev">
-                    <div class="team-icon"><div class="ninblu-icon"></div></div>
-                </div>
-                <h3>Nico Arias</h3>
-                <p class="member-role">Un papucho</p>
+
+            <div class="carousel-viewport" id="carousel">
+                <div class="carousel-track" id="track">
+                    </div>
             </div>
-            <div class="team-member">
-                <div class="img-box">
-                    <img src="assets/ponja.jpg" alt="Design">
-                    <div class="team-icon"><div class="ninblu-icon"></div></div>
-                </div>
-                <h3>El Mayoneso</h3>
-                <p class="member-role">Javier</p>
-            </div>
+
+        </div>
+    </section>
+
+    <section id="know-us">
+        <div class="section-header">
+            <h2>Nuestro <span>Universo</span></h2>
+            <p>Capacidades infinitas para materializar lo imposible.</p>
+        </div>
+        <div class="cards-grid">
+            <div class="tilt-card" data-tilt><h3>Diseño Web</h3><p>Interfaces inmersivas que atrapan desde el primer pixel.</p></div>
+            <div class="tilt-card" data-tilt><h3>Producción Audiovisual</h3><p>Historias cinematográficas que se ven y se sienten.</p></div>
+            <div class="tilt-card" data-tilt><h3>Branding Místico</h3><p>Identidades visuales que dejan una huella imborrable.</p></div>
+            <div class="tilt-card" data-tilt><h3>Marketing Estratégico</h3><p>Conectando tu esencia con las personas correctas.</p></div>
+        </div>
+    </section>
+
+    <section id="projects">
+        <div class="section-header">
+            <h2>Legado <span>Visual</span></h2>
+            <p>Nuestras huellas en el mundo digital.</p>
+        </div>
+        <div class="cards-grid">
+            <div class="tilt-card"><h3>Proyecto Alpha</h3><p>Próximamente...</p></div>
+            <div class="tilt-card"><h3>Proyecto Omega</h3><p>Próximamente...</p></div>
         </div>
     </section>
 
@@ -122,9 +147,29 @@
     </section>
 
     <footer>
-        <p>&copy; 2025 Ninblu Agency. El futuro es hoy, ¿oíste viejo?.</p>
+        <p>&copy; 2025 Ninblu Agency. El futuro es hoy, ¿Oíste viejo?.</p>
     </footer>
 
-    <script src="script.js" defer></script>
-</body>
+    <div class="flash" id="flash"></div>
+
+    <div class="modal-overlay" id="modalOverlay" onclick="cerrarModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="cerrarModal()">×</button>
+            
+            <div class="modal-image-container">
+                <img id="modalProfilePic" class="profile-pic" src="" alt="Profile">
+                <div class="modal-agency-logo">
+                    </div>
+            </div>
+
+            <div class="modal-info">
+                <h2 id="modalName">Name</h2>
+                <h3 id="modalRole">Role</h3>
+                <p id="modalBio" class="modal-bio">Description...</p>
+                <div class="specialties-grid" id="modalSkills"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="equipo.js"></script> <script src="script.js"></script> </body>
 </html>

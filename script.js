@@ -1,4 +1,10 @@
-// --- 1. COMPONENTE JS LOGO (Evita repetir SVG) ---
+/* =========================================
+   NINBLU CORE LOGIC
+   ========================================= */
+
+// --- 1. COMPONENTE DE LOGO SVG (DRY) ---
+// Se usa solo para inyectar el logo principal en la navbar y footer si es necesario.
+// NO se usa en las cartas de equipo (ahí usamos imágenes).
 class NinbluLogo {
     static getSVG() {
         return `
@@ -9,54 +15,94 @@ class NinbluLogo {
         </svg>`;
     }
     static inject() {
-        document.querySelectorAll('.ninblu-icon').forEach(el => {
+        // Inyectar solo donde no hay contenido previo (para no sobrescribir imágenes si las hubiera)
+        document.querySelectorAll('.ninblu-icon:empty').forEach(el => {
             el.innerHTML = this.getSVG();
         });
     }
 }
 NinbluLogo.inject();
 
-// --- 2. LOGO PARALLAX INTERACTIVO ---
-const bgLogo = document.getElementById('bg-logo-container');
-window.addEventListener('scroll', () => {
-    const scrollY = window.scrollY;
-    // Desplazamiento sutil hacia arriba (negativo Y) al hacer scroll
-    bgLogo.style.transform = `translate(-50%, calc(-50% - ${scrollY * 0.15}px))`;
-});
 
-
-// --- 3. NAVBAR BUBBLE ---
+// --- 2. MENU HAMBURGUESA & NAVBAR ---
 const navBubble = document.querySelector('.nav-bubble');
 const navLinks = document.querySelectorAll('.nav-item');
 const navContainer = document.querySelector('.nav-links');
 
+// Función Toggle para Móvil
+function toggleMenu() {
+    const hamburger = document.querySelector(".hamburger");
+    const navMenu = document.querySelector(".nav-container");
+    const body = document.querySelector("body");
+
+    hamburger.classList.toggle("active");
+    navMenu.classList.toggle("active");
+    body.classList.toggle("menu-open"); // Bloquear scroll
+}
+
+// Función Cerrar menú al hacer click en un link
+function closeMenu() {
+    const hamburger = document.querySelector(".hamburger");
+    const navMenu = document.querySelector(".nav-container");
+    const body = document.querySelector("body");
+
+    hamburger.classList.remove("active");
+    navMenu.classList.remove("active");
+    body.classList.remove("menu-open");
+}
+
+// Lógica de la "Burbuja" (Solo Desktop)
 function moveBubble(target) {
+    // Si estamos en móvil (ancho menor a 900px), no movemos la burbuja
+    if(window.innerWidth <= 900 || !navBubble || !target) return;
+    
     navBubble.style.width = `${target.offsetWidth}px`;
     navBubble.style.left = `${target.offsetLeft}px`;
     navBubble.style.opacity = '1';
 }
 
-navLinks.forEach(link => {
-    link.addEventListener('mouseenter', (e) => moveBubble(e.target));
-});
+if(navLinks.length > 0) {
+    navLinks.forEach(link => {
+        link.addEventListener('mouseenter', (e) => moveBubble(e.target));
+    });
 
-navContainer.addEventListener('mouseleave', () => {
-    const activeLink = document.querySelector('.nav-item.active');
-    if(activeLink) moveBubble(activeLink);
-});
+    // Al salir del menú, volver al activo
+    if(navContainer) {
+        navContainer.addEventListener('mouseleave', () => {
+            const activeLink = document.querySelector('.nav-item.active');
+            if(activeLink) moveBubble(activeLink);
+        });
+    }
+}
 
+// Scroll Spy (Marca link activo al bajar)
 window.addEventListener('scroll', () => {
     let current = '';
-    document.querySelectorAll('section').forEach(sec => {
+    const sections = document.querySelectorAll('section');
+    
+    sections.forEach(sec => {
         if(pageYOffset >= sec.offsetTop - 300) current = sec.getAttribute('id');
     });
+
     navLinks.forEach(link => {
         link.classList.remove('active');
         if(link.getAttribute('href').includes(current)) link.classList.add('active');
     });
-    if(!navContainer.matches(':hover')) {
+
+    // Mover burbuja solo si no estamos haciendo hover manual
+    if(navContainer && !navContainer.matches(':hover') && window.innerWidth > 900) {
         const active = document.querySelector('.nav-item.active');
         if(active) moveBubble(active);
+    }
+});
+
+
+// --- 3. LOGO PARALLAX INTERACTIVO (FONDO) ---
+const bgLogo = document.getElementById('bg-logo-container');
+window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY;
+    if(bgLogo) {
+        bgLogo.style.transform = `translate(-50%, calc(-50% - ${scrollY * 0.15}px))`;
     }
 });
 
@@ -64,42 +110,56 @@ window.addEventListener('scroll', () => {
 // --- 4. CURSOR PERSONALIZADO ---
 const cursorDot = document.querySelector('.cursor-dot');
 const cursorOutline = document.querySelector('.cursor-outline');
+
 window.addEventListener('mousemove', (e) => {
     const posX = e.clientX;
     const posY = e.clientY;
+    
     cursorDot.style.left = `${posX}px`;
     cursorDot.style.top = `${posY}px`;
-    cursorOutline.animate({ left: `${posX}px`, top: `${posY}px` }, { duration: 500, fill: "forwards" });
+    
+    cursorOutline.animate({ 
+        left: `${posX}px`, 
+        top: `${posY}px` 
+    }, { duration: 500, fill: "forwards" });
 });
 
 
-// --- 5. TILT EFFECT ---
+// --- 5. TILT EFFECT (Efecto 3D en Tarjetas) ---
 const cards = document.querySelectorAll('.tilt-card');
 cards.forEach(card => {
     card.addEventListener('mousemove', (e) => {
         const rect = card.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-        const rotateX = ((y - rect.height/2) / rect.height/2) * -10;
-        const rotateY = ((x - rect.width/2) / rect.width/2) * 10;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((y - centerY) / centerY) * -10;
+        const rotateY = ((x - centerX) / centerX) * 10;
+        
         card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
     });
+
     card.addEventListener('mouseleave', () => {
         card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
     });
 });
 
 
-// --- 6. TEXT ROTATOR ---
+// --- 6. TEXT ROTATOR (HERO) ---
 const words = ["Audiovisual", "Sonoro", "Fotográfico", "de Marketing", "Visual", "Web", "de Animación", "de Diseño"];
 let wordIndex = 0;
 const wrapper = document.getElementById('word-rotator');
+
 function updateWord() {
+    if(!wrapper) return;
     const span = document.createElement('span');
     span.textContent = words[wordIndex];
     span.className = 'dynamic-word';
     wrapper.appendChild(span);
-    void span.offsetWidth; span.classList.add('active');
+    void span.offsetWidth; // Trigger reflow
+    span.classList.add('active');
+    
     const oldSpans = wrapper.getElementsByTagName('span');
     if(oldSpans.length > 1) {
         oldSpans[0].classList.remove('active');
@@ -108,13 +168,145 @@ function updateWord() {
     }
     wordIndex = (wordIndex + 1) % words.length;
 }
-updateWord();
-setInterval(updateWord, 3000);
+
+if(wrapper) {
+    updateWord();
+    setInterval(updateWord, 3000);
+}
 
 
-// --- 7. THREE.JS UNIVERSE (FIXED) ---
+// --- 7. TEAM REVEAL SYSTEM (SOBRE & CARRUSEL) ---
+let packAbierto = false;
+const track = document.getElementById('track');
+
+// A. Renderizado de Cartas
+function renderCards() {
+    if(!track || typeof teamData === 'undefined') return;
+    track.innerHTML = '';
+
+    teamData.forEach(member => {
+        const skillsHTML = member.skills.map(skill => `<span class="spec-tag">${skill}</span>`).join('');
+        
+        // Renderizamos con IMAGENES para los logos de departamento
+        const cardHTML = `
+            <div class="team-card" style="--accent: ${member.color};" onclick="abrirModal(${member.id})">
+                <div class="card-inner">
+                    <div class="card-portrait-frame" style="border-bottom-color: ${member.color};">
+                        
+                        <div class="agency-logo-badge">
+                            <img src="${member.logo}" alt="Logo Dept" style="width:100%; height:100%; object-fit:contain;">
+                        </div>
+
+                        <div class="card-portrait"><img src="${member.image}" alt="${member.name}"></div>
+                    </div>
+                    <div class="card-content">
+                        <div>
+                            <h3 class="card-name">${member.name}</h3>
+                            <div class="card-role" style="color: ${member.color};">${member.role}</div>
+                        </div>
+                        <div class="specialties-grid">${skillsHTML}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        track.insertAdjacentHTML('beforeend', cardHTML);
+    });
+
+    prepararCarruselSeamless();
+}
+
+function prepararCarruselSeamless() {
+    const cartas = Array.from(track.children);
+    if(cartas.length === 0) return;
+    const cardWidth = 260; 
+    const gap = 40;
+    
+    // Calculo para el CSS
+    const anchoSet = (cardWidth + gap) * cartas.length;
+    document.documentElement.style.setProperty('--scroll-distance', `${anchoSet}px`);
+
+    // Clonar para loop infinito
+    cartas.forEach(c => track.appendChild(c.cloneNode(true)));
+    cartas.forEach(c => track.appendChild(c.cloneNode(true)));
+}
+
+function abrirSobre(lado) {
+    if (packAbierto) return;
+    packAbierto = true;
+    
+    const pack = document.getElementById('pack');
+    const flash = document.getElementById('flash');
+    const carousel = document.getElementById('carousel');
+
+    if (lado === 'left') pack.classList.add('ripped-left');
+    else pack.classList.add('ripped-right');
+
+    setTimeout(() => { 
+        flash.classList.add('on'); 
+        pack.classList.add('fade-out'); 
+    }, 400);
+
+    setTimeout(() => { 
+        flash.classList.remove('on'); 
+        pack.style.display = 'none'; 
+        carousel.classList.add('active'); 
+    }, 900);
+}
+
+// B. Sistema Modal
+const modalOverlay = document.getElementById('modalOverlay');
+const mPic = document.getElementById('modalProfilePic');
+const mName = document.getElementById('modalName');
+const mRole = document.getElementById('modalRole');
+const mBio = document.getElementById('modalBio');
+const mSkills = document.getElementById('modalSkills');
+const mLogoDiv = document.querySelector('.modal-agency-logo');
+
+function abrirModal(id) {
+    if(typeof teamData === 'undefined') return;
+    
+    const member = teamData.find(m => m.id === id);
+    if (!member) return;
+
+    if(track) track.style.animationPlayState = 'paused';
+
+    // Poblar modal
+    mPic.src = member.image;
+    mName.textContent = member.name;
+    mRole.textContent = member.role;
+    mRole.style.color = member.color;
+    mBio.textContent = member.bio;
+    
+    // Logo específico en modal
+    if(mLogoDiv) {
+        mLogoDiv.innerHTML = `<img src="${member.logo}" alt="Logo Dept" style="width:100%; height:100%; object-fit:contain;">`;
+    }
+
+    mSkills.innerHTML = member.skills.map(skill => 
+        `<span class="spec-tag">${skill}</span>`
+    ).join('');
+
+    modalOverlay.classList.add('active');
+}
+
+function cerrarModal() {
+    modalOverlay.classList.remove('active');
+    setTimeout(() => { 
+        if(track) track.style.animationPlayState = 'running'; 
+    }, 400);
+}
+
+// Iniciar Team System al cargar
+document.addEventListener('DOMContentLoaded', () => {
+    renderCards();
+});
+
+
+// --- 8. THREE.JS UNIVERSE ---
 const initUniverse = () => {
     const canvas = document.getElementById('universe-canvas');
+    if(!canvas) return;
+
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x05020a, 0.002);
 
@@ -128,6 +320,7 @@ const initUniverse = () => {
     const pCount = 3000;
     const pos = new Float32Array(pCount * 3);
     const scales = new Float32Array(pCount);
+
     for(let i=0; i<pCount; i++){
         pos[i*3] = (Math.random()-0.5)*200;
         pos[i*3+1] = (Math.random()-0.5)*200;
@@ -190,4 +383,14 @@ const initUniverse = () => {
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
 };
+
 initUniverse();
+
+// Smooth Scroll para anchors internos
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.querySelector(a.getAttribute('href'));
+        if(target) target.scrollIntoView({ behavior:'smooth' });
+    });
+});

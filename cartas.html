@@ -3,247 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agency Team Reveal | Ultimate TCG Edition</title>
+    <title>Agency Team Reveal | Dynamic JSON Edition</title>
     <style>
         /* --- CONFIGURACIÓN BASE --- */
         :root {
-            --bg-dark: #1e1e1e;
-            --card-border: #bdc3c7;
-            --card-bg: #fdfdfd;
+            --bg-dark: #111;
             --primary: #2d3436;
             --accent: #0984e3;
             --gold: #f1c40f;
-            --carousel-radius: 600px; /* Radio aumentado para que las cartas se vean mejor */
+            --card-width: 280px;
+            --card-height: 420px;
+            --gap: 40px;
+            --scroll-distance: 0px;
+            --anim-duration: 25s;
+            --pack-bg: linear-gradient(135deg, #bdc3c7 0%, #2c3e50 40%, #ffffff 50%, #2c3e50 60%, #bdc3c7 100%);
         }
 
         body {
             margin: 0; padding: 0;
             background: radial-gradient(circle at center, #2c3e50 0%, #000000 100%);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             height: 100vh;
             display: flex; justify-content: center; align-items: center;
             overflow: hidden;
-            perspective: 2000px;
         }
 
         .stage-container {
             position: relative;
             width: 100%; height: 100%;
             display: flex; justify-content: center; align-items: center;
-            transform-style: preserve-3d;
+            overflow: hidden;
         }
 
-        /* --- EL SOBRE (LÓGICA FUNCIONAL) --- */
+        /* --- SOBRE --- */
         .booster-pack {
-            position: absolute;
-            width: 320px; height: 480px;
-            z-index: 100; 
-            transform-style: preserve-3d;
-            transition: transform 0.3s ease;
-            animation: float 4s ease-in-out infinite;
+            position: absolute; width: 320px; height: 480px; z-index: 100; 
+            transition: transform 0.3s ease; animation: float 4s ease-in-out infinite;
         }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
-
-        /* Zonas de Clic (Invisibles pero funcionales) */
-        .click-trigger {
-            position: absolute; top: 0; width: 50%; height: 160px; z-index: 999; cursor: pointer;
-        }
+        .click-trigger { position: absolute; top: 0; width: 50%; height: 160px; z-index: 999; cursor: pointer; }
         .trigger-left { left: 0; }
         .trigger-right { right: 0; }
         .trigger-left:hover ~ .pack-top { filter: brightness(1.2); transform: skewX(2deg); }
         .trigger-right:hover ~ .pack-top { filter: brightness(1.2); transform: skewX(-2deg); }
 
-        /* Visuales del Sobre */
         .pack-body {
             position: absolute; bottom: 0; width: 100%; height: 85%;
-            background: linear-gradient(135deg, #bdc3c7 0%, #2c3e50 40%, #ffffff 50%, #2c3e50 60%, #bdc3c7 100%);
-            background-size: 200% 200%;
-            border-radius: 0 0 15px 15px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            background: var(--pack-bg); background-size: 200% 200%;
+            border-radius: 0 0 15px 15px; box-shadow: 0 20px 50px rgba(0,0,0,0.6);
             display: flex; justify-content: center; align-items: center; flex-direction: column;
-            animation: shine 3s infinite linear;
             pointer-events: none;
         }
         .pack-top {
             position: absolute; top: 0; width: 100%; height: 16%;
-            background: inherit; background-size: 200% 200%;
-            border-radius: 15px 15px 0 0;
-            border-bottom: 2px dashed rgba(255,255,255,0.5);
-            transform-origin: bottom center; transition: 0.3s;
-            pointer-events: none;
+            background: var(--pack-bg); background-size: 200% 200%;
+            border-radius: 15px 15px 0 0; border-bottom: 2px dashed rgba(255,255,255,0.5);
+            transform-origin: bottom center; transition: 0.3s; pointer-events: none;
         }
         .pack-logo {
             font-size: 2.5rem; font-weight: 900; color: white;
             text-transform: uppercase; mix-blend-mode: overlay; letter-spacing: 2px;
         }
-        
-        @keyframes shine { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        /* Animaciones de Apertura */
         .ripped-left .pack-top { animation: tearLeft 0.5s forwards; }
         .ripped-right .pack-top { animation: tearRight 0.5s forwards; }
         @keyframes tearLeft { to { transform: translateX(-150px) rotate(-45deg) translateY(-100px); opacity: 0; } }
         @keyframes tearRight { to { transform: translateX(150px) rotate(45deg) translateY(-100px); opacity: 0; } }
         .fade-out { opacity: 0; transform: scale(1.5); pointer-events: none; transition: all 0.6s ease; }
 
-        /* --- CARRUSEL 3D --- */
-        .carousel-container {
-            position: absolute; width: 340px; height: 500px; /* Ajustado al tamaño de carta */
-            perspective: 2000px;
-            opacity: 0; visibility: hidden;
-            transition: opacity 1s ease;
+        /* --- CARRUSEL --- */
+        .carousel-viewport {
+            position: absolute; width: 100%; height: 600px;
+            opacity: 0; visibility: hidden; transition: opacity 1s ease; z-index: 10;
+            display: flex; align-items: center; overflow: hidden;
+            mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+        }
+        .carousel-viewport.active { opacity: 1; visibility: visible; }
+        .carousel-track { display: flex; gap: var(--gap); width: max-content; }
+        .carousel-viewport.active .carousel-track { animation: scroll-seamless var(--anim-duration) linear infinite; }
+        body:not(.modal-open) .carousel-track:hover { animation-play-state: paused; }
+        
+        @keyframes scroll-seamless {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(var(--scroll-distance) * -1)); }
+        }
+
+        /* --- CARTAS (ESTILO TCG) --- */
+        .team-card {
+            width: var(--card-width); height: var(--card-height);
+            background: #dcdde1; border-radius: 18px;
+            display: flex; flex-direction: column; padding: 8px; box-sizing: border-box;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            flex-shrink: 0; position: relative; cursor: pointer;
+        }
+        .team-card:hover {
+            transform: scale(1.1) translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6); z-index: 100; background: white;
+        }
+        .card-inner {
+            width: 100%; height: 100%; background: #fdfdfd;
+            border-radius: 12px; border: 2px solid #bdc3c7;
+            display: flex; flex-direction: column; overflow: hidden; position: relative;
+        }
+        .card-portrait-frame {
+            height: 55%; width: 100%;
+            background: linear-gradient(to bottom, #95a5a6, #7f8c8d);
+            position: relative; display: flex; justify-content: center; align-items: center;
+            border-bottom: 4px solid var(--accent); overflow: hidden;
+        }
+        .card-portrait { width: 100%; height: 100%; display: flex; }
+        .card-portrait img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+        .team-card:hover .card-portrait img { transform: scale(1.1); }
+        
+        .agency-logo-badge {
+            position: absolute; top: 8px; right: 8px; width: 35px; height: 35px;
+            background: white; border: 2px solid white; border-radius: 6px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center;
+            overflow: hidden; z-index: 5; padding: 2px;
+        }
+        .agency-logo-badge img { width: 100%; height: 100%; object-fit: contain; }
+
+        .card-content { height: 45%; padding: 12px; display: flex; flex-direction: column; text-align: left; }
+        .card-header-group { border-bottom: 1px solid #eee; padding-bottom: 6px; margin-bottom: 6px; }
+        .card-name { font-size: 1.4rem; font-weight: 800; color: var(--primary); margin: 0; text-transform: uppercase; line-height: 1; }
+        .card-role { font-size: 0.85rem; color: var(--accent); font-weight: 700; text-transform: uppercase; margin-top: 4px; }
+        .stats-label { font-size: 0.65rem; color: #95a5a6; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; }
+        .specialties-grid { display: flex; flex-wrap: wrap; gap: 4px; }
+        .spec-tag { background: #f1f2f6; color: #2d3436; padding: 3px 6px; border-radius: 3px; font-size: 0.65rem; font-weight: 600; border: 1px solid #dfe4ea; }
+        
+        .card-rarity { margin-top: auto; display: flex; justify-content: flex-end; align-items: center; }
+        .footer-logo { width: 28px; height: 28px; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.1)); opacity: 0.8; }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 2000;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+            backdrop-filter: blur(5px);
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .modal-content {
+            background: white; width: 90%; max-width: 500px;
+            border-radius: 20px; overflow: hidden; position: relative;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            transform: translateY(30px) scale(0.95); transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
+
+        .modal-close {
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(0,0,0,0.5); color: white; border: none;
+            width: 36px; height: 36px; border-radius: 50%; font-size: 20px;
+            cursor: pointer; z-index: 20; transition: 0.3s;
+        }
+        .modal-close:hover { background: rgba(0,0,0,0.8); }
+
+        .modal-image-container {
+            width: 100%; height: 250px; position: relative;
+            background: #bdc3c7;
+        }
+        .modal-image-container img.profile-pic { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+        
+        /* Nuevo: Logo en el modal */
+        .modal-agency-logo {
+            position: absolute; bottom: -25px; right: 25px;
+            width: 80px; height: 80px;
+            background: white; border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            padding: 5px; box-sizing: border-box;
             z-index: 10;
         }
-        .carousel-container.active { opacity: 1; visibility: visible; }
+        .modal-agency-logo img { width: 100%; height: 100%; object-fit: contain; }
 
-        .carousel-track {
-            position: absolute; width: 100%; height: 100%;
-            transform-style: preserve-3d;
-            transform: translateZ(-600px);
-            transition: transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
+        .modal-info { padding: 35px 25px 25px; text-align: left; }
+        .modal-info h2 { margin: 0; color: var(--primary); font-size: 2rem; text-transform: uppercase; }
+        .modal-info h3 { margin: 5px 0 15px; color: var(--accent); font-size: 1.1rem; font-weight: 700; text-transform: uppercase;}
+        .modal-bio { color: #555; line-height: 1.6; margin-bottom: 20px; font-size: 0.95rem; }
 
-        /* --- DISEÑO DE CARTA TCG (PREMIUM) --- */
-        .team-card {
-            position: absolute; top: 0; left: 0;
-            width: 320px; height: 480px;
-            background: #dcdde1; /* Marco exterior plateado */
-            border-radius: 18px;
-            display: flex; flex-direction: column;
-            backface-visibility: hidden;
-            transition: all 0.5s;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            padding: 10px; /* Padding para el borde exterior */
-            box-sizing: border-box;
-        }
-
-        /* Estado Activo/Inactivo */
-        .team-card.active { 
-            filter: brightness(1); 
-            z-index: 20; 
-            box-shadow: 0 0 50px rgba(255, 255, 255, 0.2); 
-            transform: scale(1.05); 
-        }
-        .team-card.inactive { filter: brightness(0.3) blur(2px); }
-
-        /* Estructura Interna de la Carta */
-        .card-inner {
-            width: 100%; height: 100%;
-            background: var(--card-bg);
-            border-radius: 12px;
-            border: 2px solid #bdc3c7;
-            display: flex; flex-direction: column;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* Cabecera / Foto */
-        .card-portrait-frame {
-            height: 55%;
-            width: 100%;
-            background: linear-gradient(to bottom, #7f8c8d, #95a5a6);
-            position: relative;
-            display: flex; justify-content: center; align-items: center;
-            border-bottom: 4px solid var(--accent);
-        }
-
-        .card-portrait {
-            font-size: 6rem;
-            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3));
-        }
-
-        /* Mini Logo de Agencia */
-        .agency-logo-badge {
-            position: absolute;
-            top: 10px; right: 10px;
-            width: 40px; height: 40px;
-            background: linear-gradient(135deg, #0984e3, #74b9ff);
-            border: 2px solid white;
-            border-radius: 6px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-            display: flex; justify-content: center; align-items: center;
-            font-weight: 900; font-size: 0.8rem; color: white;
-            z-index: 5;
-        }
-
-        /* Cuerpo de la Carta */
-        .card-content {
-            height: 45%;
-            padding: 15px;
-            display: flex; flex-direction: column;
-            text-align: left;
-        }
-
-        .card-header-group {
-            border-bottom: 1px solid #eee;
-            padding-bottom: 8px;
-            margin-bottom: 8px;
-        }
-
-        .card-name {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin: 0;
-            text-transform: uppercase;
-            letter-spacing: -0.5px;
-            line-height: 1;
-        }
-
-        .card-role {
-            font-size: 0.95rem;
-            color: var(--accent);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 5px;
-        }
-
-        /* Sección de Especialidades */
-        .stats-label {
-            font-size: 0.7rem;
-            color: #95a5a6;
-            text-transform: uppercase;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .specialties-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-
-        .spec-tag {
-            background: #f1f2f6;
-            color: #2d3436;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border: 1px solid #dfe4ea;
-        }
-
-        /* Rareza (Decorativo inferior) */
-        .card-rarity {
-            margin-top: auto;
-            display: flex; justify-content: space-between; align-items: center;
-            font-size: 0.7rem; color: #b2bec3;
-        }
-        .rarity-icon { color: var(--gold); }
-
-        /* Flash */
         .flash {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: white; opacity: 0; pointer-events: none; z-index: 2000;
+            background: white; opacity: 0; pointer-events: none; z-index: 3000;
             transition: opacity 0.5s;
         }
         .flash.on { opacity: 1; }
-
     </style>
 </head>
 <body>
@@ -260,161 +207,167 @@
             </div>
         </div>
 
-        <div class="carousel-container" id="carousel">
+        <div class="carousel-viewport" id="carousel">
             <div class="carousel-track" id="track">
-                
-                <div class="team-card">
-                    <div class="card-inner">
-                        <div class="card-portrait-frame">
-                            <div class="agency-logo-badge">AS</div>
-                            <div class="card-portrait">👨‍💻</div>
-                        </div>
-                        <div class="card-content">
-                            <div class="card-header-group">
-                                <h3 class="card-name">Alex Dev</h3>
-                                <div class="card-role">Tech Lead</div>
-                            </div>
-                            <div class="stats-label">Especialidades</div>
-                            <div class="specialties-grid">
-                                <span class="spec-tag">Arquitectura</span>
-                                <span class="spec-tag">Node.js</span>
-                                <span class="spec-tag">Cloud</span>
-                            </div>
-                            <div class="card-rarity">
-                                <span>#001 / DEV</span>
-                                <span class="rarity-icon">★★★★★</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
-
-                <div class="team-card">
-                    <div class="card-inner">
-                        <div class="card-portrait-frame" style="border-bottom-color: #e84393;">
-                            <div class="agency-logo-badge" style="background: linear-gradient(135deg, #e84393, #fd79a8);">AS</div>
-                            <div class="card-portrait">🎨</div>
-                        </div>
-                        <div class="card-content">
-                            <div class="card-header-group">
-                                <h3 class="card-name">Sarah Arts</h3>
-                                <div class="card-role" style="color: #e84393;">Art Director</div>
-                            </div>
-                            <div class="stats-label">Especialidades</div>
-                            <div class="specialties-grid">
-                                <span class="spec-tag">UI / UX</span>
-                                <span class="spec-tag">Branding</span>
-                                <span class="spec-tag">Motion</span>
-                            </div>
-                            <div class="card-rarity">
-                                <span>#002 / DES</span>
-                                <span class="rarity-icon">★★★★★</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="team-card">
-                    <div class="card-inner">
-                        <div class="card-portrait-frame" style="border-bottom-color: #00b894;">
-                            <div class="agency-logo-badge" style="background: linear-gradient(135deg, #00b894, #55efc4);">AS</div>
-                            <div class="card-portrait">📈</div>
-                        </div>
-                        <div class="card-content">
-                            <div class="card-header-group">
-                                <h3 class="card-name">Mike Grow</h3>
-                                <div class="card-role" style="color: #00b894;">Growth Manager</div>
-                            </div>
-                            <div class="stats-label">Especialidades</div>
-                            <div class="specialties-grid">
-                                <span class="spec-tag">SEO Tech</span>
-                                <span class="spec-tag">Analytics</span>
-                                <span class="spec-tag">Ads</span>
-                            </div>
-                            <div class="card-rarity">
-                                <span>#003 / MKT</span>
-                                <span class="rarity-icon">★★★★☆</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="team-card">
-                    <div class="card-inner">
-                        <div class="card-portrait-frame" style="border-bottom-color: #fdcb6e;">
-                            <div class="agency-logo-badge" style="background: linear-gradient(135deg, #fdcb6e, #ffeaa7);">AS</div>
-                            <div class="card-portrait">✒️</div>
-                        </div>
-                        <div class="card-content">
-                            <div class="card-header-group">
-                                <h3 class="card-name">Elena Copy</h3>
-                                <div class="card-role" style="color: #d35400;">Content Lead</div>
-                            </div>
-                            <div class="stats-label">Especialidades</div>
-                            <div class="specialties-grid">
-                                <span class="spec-tag">Storytelling</span>
-                                <span class="spec-tag">Scripts</span>
-                                <span class="spec-tag">Creative</span>
-                            </div>
-                            <div class="card-rarity">
-                                <span>#004 / CON</span>
-                                <span class="rarity-icon">★★★★☆</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                 <div class="team-card">
-                    <div class="card-inner">
-                        <div class="card-portrait-frame" style="border-bottom-color: #6c5ce7;">
-                            <div class="agency-logo-badge" style="background: linear-gradient(135deg, #6c5ce7, #a29bfe);">AS</div>
-                            <div class="card-portrait">🤝</div>
-                        </div>
-                        <div class="card-content">
-                            <div class="card-header-group">
-                                <h3 class="card-name">Juan PM</h3>
-                                <div class="card-role" style="color: #6c5ce7;">Project Manager</div>
-                            </div>
-                            <div class="stats-label">Especialidades</div>
-                            <div class="specialties-grid">
-                                <span class="spec-tag">Agile</span>
-                                <span class="spec-tag">Scrum</span>
-                                <span class="spec-tag">Clients</span>
-                            </div>
-                            <div class="card-rarity">
-                                <span>#005 / MNG</span>
-                                <span class="rarity-icon">★★★★★</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
         </div>
 
         <div class="flash" id="flash"></div>
+
+        <div class="modal-overlay" id="modalOverlay" onclick="cerrarModal()">
+            <div class="modal-content" onclick="event.stopPropagation()">
+                <button class="modal-close" onclick="cerrarModal()">×</button>
+                
+                <div class="modal-image-container">
+                    <img id="modalProfilePic" class="profile-pic" src="" alt="Profile">
+                    <div class="modal-agency-logo">
+                        <img id="modalLogoImg" src="" alt="Agency Logo">
+                    </div>
+                </div>
+
+                <div class="modal-info">
+                    <h2 id="modalName">Name</h2>
+                    <h3 id="modalRole">Role</h3>
+                    <p id="modalBio" class="modal-bio">Description here...</p>
+                    <div class="specialties-grid" id="modalSkills"></div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        let abierto = false;
-        let indiceActual = 0;
-        
-        // Setup Carrusel
-        const track = document.getElementById('track');
-        const cards = document.querySelectorAll('.team-card');
-        const radio = 600; // Radio ajustado para separar las cartas
-        const angulo = 360 / cards.length;
+        // --- 1. BASE DE DATOS DEL EQUIPO (JSON) ---
+        // Aquí es donde controlas toda la información. Escalabilidad pura.
+        const teamData = [
+            {
+                id: 1,
+                name: "Javier Troncoso",
+                role: "Web & Diseño",
+                image: "assets/ponja.jpg",
+                logo: "assets/sample.jpg",
+                color: "#0984e3",
+                skills: ["Web Design", "Diseño UI", "Editorial"],
+                bio: "Especialista en traducir conceptos abstractos en interfaces de usuario intuitivas y visualmente impactantes. Javier lidera el equipo de diseño web con un enfoque centrado en la experiencia del usuario y la estética funcional."
+            },
+            {
+                id: 2,
+                name: "Teodoro Woktej",
+                role: "Producción AV",
+                image: "assets/ponja.jpg",
+                logo: "assets/sample.jpg",
+                color: "#e74c3c",
+                skills: ["Audiovisual", "Video", "Administración"],
+                bio: "Mente maestra detrás de nuestras producciones audiovisuales. Teodoro combina una visión cinematográfica con una gestión de recursos impecable, asegurando que cada proyecto cumpla los más altos estándares."
+            },
+            {
+                id: 3,
+                name: "Nico Arias",
+                role: "Arte e Ilustración",
+                image: "assets/ponja.jpg",
+                logo: "assets/sample.jpg",
+                color: "#9b59b6",
+                skills: ["Arte Digital", "Ilustración", "Concept"],
+                bio: "Un ilustrador y artista conceptual con un estilo único. Nico aporta la chispa creativa visual, desde bocetos iniciales hasta ilustraciones finales detalladas que definen la identidad de nuestras campañas."
+            },
+            {
+                id: 4,
+                name: "Daniel N.",
+                role: "Relaciones Públicas",
+                image: "assets/ponja.jpg",
+                logo: "assets/sample.jpg",
+                color: "#2ecc71",
+                skills: ["PR", "Comunicación", "Media"],
+                bio: "El puente entre la agencia y el mundo. Daniel maneja la comunicación estratégica y las relaciones con los medios, asegurando que el mensaje de nuestros clientes llegue a la audiencia correcta."
+            },
+            {
+                id: 5,
+                name: "Xavier Mancero",
+                role: "Sistemas & Dev",
+                image: "assets/ponja.jpg",
+                logo: "assets/sample.jpg",
+                color: "#34495e",
+                skills: ["Desarrollo", "Backend", "Técnico"],
+                bio: "Arquitecto de soluciones técnicas robustas y escalables. Xavier lidera el desarrollo backend y la infraestructura de sistemas, garantizando que la tecnología funcione sin problemas detrás de cada diseño."
+            }
+        ];
 
-        // Posicionar cartas
-        cards.forEach((card, i) => {
-            card.style.transform = `rotateY(${i * angulo}deg) translateZ(${radio}px)`;
-            if(i === 0) card.classList.add('active');
-            else card.classList.add('inactive');
-        });
+        let abierto = false;
+        const track = document.getElementById('track');
+
+        // --- 2. MOTOR DE RENDERIZADO DINÁMICO ---
+        function renderCards() {
+            // Limpiar track
+            track.innerHTML = '';
+
+            // Generar HTML para cada miembro
+            teamData.forEach(member => {
+                // Crear HTML de los skills tags
+                const skillsHTML = member.skills.map(skill => `<span class="spec-tag">${skill}</span>`).join('');
+
+                const cardHTML = `
+                    <div class="team-card" style="--accent: ${member.color};" onclick="abrirModal(${member.id})">
+                        <div class="card-inner">
+                            <div class="card-portrait-frame" style="border-bottom-color: ${member.color};">
+                                <div class="agency-logo-badge"><img src="${member.logo}" alt="Logo"></div>
+                                <div class="card-portrait"><img src="${member.image}" alt="${member.name}"></div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-header-group">
+                                    <h3 class="card-name">${member.name}</h3>
+                                    <div class="card-role" style="color: ${member.color};">${member.role}</div>
+                                </div>
+                                <div class="stats-label">Skills</div>
+                                <div class="specialties-grid">${skillsHTML}</div>
+                                <div class="card-rarity">
+                                    <img src="${member.logo}" alt="Logo" class="footer-logo">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                // Inyectar al DOM (como string es más rápido para renderizado inicial)
+                track.insertAdjacentHTML('beforeend', cardHTML);
+            });
+
+            // Una vez renderizado, iniciamos el sistema infinito
+            prepararCarruselSeamless();
+        }
+
+        // --- 3. SISTEMA CARRUSEL INFINITO ---
+        function prepararCarruselSeamless() {
+            const cartasOriginales = Array.from(track.children);
+            const numeroCartas = cartasOriginales.length;
+            const cardWidth = 280; 
+            const gap = 40; 
+            
+            // Cálculo preciso de distancia
+            const anchoSetOriginal = (cardWidth + gap) * numeroCartas;
+            document.documentElement.style.setProperty('--scroll-distance', `${anchoSetOriginal}px`);
+
+            // Clonado (Doble pasada para seguridad en pantallas grandes)
+            cartasOriginales.forEach(carta => {
+                const clon = carta.cloneNode(true);
+                // Importante: los clones deben mantener el evento onclick
+                // Como usamos onclick inline en el HTML generado, se clona bien.
+                clon.setAttribute('aria-hidden', 'true'); 
+                track.appendChild(clon);
+            });
+             cartasOriginales.forEach(carta => {
+                const clon2 = carta.cloneNode(true);
+                clon2.setAttribute('aria-hidden', 'true'); 
+                track.appendChild(clon2);
+            });
+        }
+
+        // --- 4. LÓGICA DE INTERACCIÓN ---
+        
+        // Inicializar
+        renderCards();
 
         function abrirSobre(lado) {
             if (abierto) return;
             abierto = true;
-
             const pack = document.getElementById('pack');
             const flash = document.getElementById('flash');
             const carousel = document.getElementById('carousel');
@@ -422,31 +375,48 @@
             if (lado === 'left') pack.classList.add('ripped-left');
             else pack.classList.add('ripped-right');
 
-            setTimeout(() => {
-                flash.classList.add('on');
-                pack.classList.add('fade-out');
-            }, 300);
-
-            setTimeout(() => {
-                flash.classList.remove('on');
-                pack.style.display = 'none'; 
-                carousel.classList.add('active');
-
-                // Rotación automática
-                setInterval(rotarCarrusel, 5000); 
-            }, 800);
+            setTimeout(() => { flash.classList.add('on'); pack.classList.add('fade-out'); }, 300);
+            setTimeout(() => { flash.classList.remove('on'); pack.style.display = 'none'; carousel.classList.add('active'); }, 800);
         }
 
-        function rotarCarrusel() {
-            indiceActual++;
-            track.style.transform = `translateZ(-${radio}px) rotateY(${indiceActual * -angulo}deg)`;
-            
-            const indexNormalizado = indiceActual % cards.length;
-            cards.forEach((card, i) => {
-                card.classList.remove('active', 'inactive');
-                if (i === indexNormalizado) card.classList.add('active');
-                else card.classList.add('inactive');
-            });
+        // --- 5. LÓGICA DEL MODAL ---
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalProfilePic = document.getElementById('modalProfilePic');
+        const modalLogoImg = document.getElementById('modalLogoImg');
+        const modalName = document.getElementById('modalName');
+        const modalRole = document.getElementById('modalRole');
+        const modalBio = document.getElementById('modalBio');
+        const modalSkills = document.getElementById('modalSkills');
+
+        function abrirModal(id) {
+            // Buscar datos en el JSON por ID
+            const member = teamData.find(m => m.id === id);
+            if (!member) return;
+
+            // Pausar carrusel
+            track.style.animationPlayState = 'paused';
+            document.body.classList.add('modal-open');
+
+            // Poblar Modal
+            modalProfilePic.src = member.image;
+            modalLogoImg.src = member.logo; // Logo dinámico en el modal
+            modalName.textContent = member.name;
+            modalRole.textContent = member.role;
+            modalRole.style.color = member.color;
+            modalBio.textContent = member.bio;
+
+            // Renderizar skills en el modal
+            modalSkills.innerHTML = member.skills.map(skill => 
+                `<span class="spec-tag">${skill}</span>`
+            ).join('');
+
+            modalOverlay.classList.add('active');
+        }
+
+        function cerrarModal() {
+            modalOverlay.classList.remove('active');
+            document.body.classList.remove('modal-open');
+            setTimeout(() => { track.style.animationPlayState = 'running'; }, 400);
         }
     </script>
 </body>
