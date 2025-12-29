@@ -15,8 +15,8 @@ const teamData = [
     },
     {
         id: 2,
-        name: "Teodoro Woktej",
-        role: "Producción AV",
+        name: "Teodoro Wojtek",
+        role: "Es un señorito gei",
         image: "assets/ponja.jpg",
         logo: "assets/sample.jpg",
         color: "#e74c3c", // Rojo
@@ -35,7 +35,7 @@ const teamData = [
     },
     {
         id: 4,
-        name: "Daniel N.",
+        name: "Daniel Proaño",
         role: "Relaciones Públicas",
         image: "assets/ponja.jpg",
         logo: "assets/sample.jpg",
