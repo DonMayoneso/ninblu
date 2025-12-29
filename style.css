@@ -24,8 +24,7 @@ body {
     -webkit-user-select: none;
 }
 
-/* Bloquear scroll cuando el menú está abierto */
-body.menu-open { overflow: hidden; }
+body.menu-open { overflow: hidden; /* Bloquear scroll en móvil al abrir menú */ }
 
 /* Cursor Personalizado */
 .cursor-dot, .cursor-outline {
@@ -40,7 +39,7 @@ body.menu-open { overflow: hidden; }
     transition: width 0.2s, height 0.2s;
 }
 
-/* Universos y Fondos */
+/* Fondos */
 #universe-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; }
 #bg-logo-container {
     position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -55,7 +54,9 @@ ul { list-style: none; }
 h1, h2, h3 { font-family: 'Inder', sans-serif; }
 ::-webkit-scrollbar { width: 0; }
 
-/* --- NAVBAR DESKTOP --- */
+/* =========================================
+   NAVBAR (DESKTOP DEFAULT)
+   ========================================= */
 .navbar {
     position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
     width: 90%; max-width: 1200px; padding: 0.8rem 1.5rem;
@@ -66,7 +67,7 @@ h1, h2, h3 { font-family: 'Inder', sans-serif; }
     z-index: 1000; transition: all 0.4s ease;
 }
 
-.nav-brand { display: flex; align-items: center; gap: 12px; z-index: 1001; }
+.nav-brand { display: flex; align-items: center; gap: 12px; z-index: 1002; }
 .ninblu-icon.nav-size svg {
     width: 35px; height: auto; fill: var(--ninblu-purple);
     filter: drop-shadow(0 0 10px rgba(117, 44, 134, 0.5));
@@ -76,11 +77,15 @@ h1, h2, h3 { font-family: 'Inder', sans-serif; }
     letter-spacing: 2px; color: #fff; text-transform: uppercase;
 }
 
-/* Contenedor de links y CTA en desktop */
-.nav-container { display: flex; align-items: center; gap: 2rem; }
+/* Contenedor derecho (Solo el CTA en Desktop visualmente) */
+.nav-container { display: flex; align-items: center; }
 
+/* ARREGLO: Links centrados absolutamente en Desktop */
 .nav-links {
-    display: flex; position: relative;
+    display: flex; 
+    position: absolute; /* Truco para centrar perfectamente ignorando los lados */
+    left: 50%;
+    transform: translateX(-50%);
     background: rgba(255, 255, 255, 0.02);
     padding: 5px; border-radius: 50px;
 }
@@ -116,10 +121,10 @@ h1, h2, h3 { font-family: 'Inder', sans-serif; }
 .cta-btn:hover { box-shadow: 0 0 20px var(--ninblu-pink); border-color: transparent; }
 
 /* Hamburger (Oculto en Desktop) */
-.hamburger { display: none; cursor: pointer; z-index: 1001; }
+.hamburger { display: none; cursor: pointer; z-index: 1002; }
 .bar {
     display: block; width: 25px; height: 3px; margin: 5px auto;
-    transition: all 0.3s ease-in-out; background-color: #fff;
+    transition: all 0.3s ease-in-out; background-color: #fff; border-radius: 3px;
 }
 
 /* --- HERO --- */
@@ -158,20 +163,16 @@ section { padding: 80px 5%; position: relative; z-index: 2; }
 
 /* --- CARDS & GRID --- */
 .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; }
-.card h3 {
-    font-size: 1.6rem; margin-bottom: 1.2rem;
-    background: linear-gradient(to right, #fff, var(--ninblu-yellow));
-    background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-}
-
-/* --- TILT CARD --- */
 .tilt-card {
     background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);
     padding: 3rem 2rem; border-radius: 20px; position: relative;
     transform-style: preserve-3d; transform: perspective(1000px);
     transition: transform 0.1s; backdrop-filter: blur(5px);
 }
-.tilt-card h3 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--ninblu-yellow); transform: translateZ(20px); text-align: center; }
+.tilt-card h3 { 
+    font-size: 1.5rem; margin-bottom: 1rem; color: var(--ninblu-yellow); 
+    transform: translateZ(20px); text-align: center;
+}
 .tilt-card p { color: #ccc; transform: translateZ(10px); text-align: center; }
 .tilt-card::after {
     content: ''; position: absolute; inset: 0; border-radius: 20px; padding: 2px;
@@ -183,7 +184,7 @@ section { padding: 80px 5%; position: relative; z-index: 2; }
 }
 .tilt-card:hover::after { opacity: 1; box-shadow: 0 0 20px rgba(117, 44, 134, 0.3); }
 
-/* --- TEAM REVEAL STAGE --- */
+/* --- TEAM SYSTEM --- */
 .team-reveal-stage { position: relative; width: 100%; height: 500px; display: flex; justify-content: center; align-items: center; overflow: hidden; }
 .booster-pack {
     position: absolute; width: 280px; height: 420px; z-index: 100;
@@ -236,7 +237,6 @@ section { padding: 80px 5%; position: relative; z-index: 2; }
 .carousel-track:hover { animation-play-state: paused !important; }
 @keyframes scroll-seamless { 0% { transform: translateX(0); } 100% { transform: translateX(calc(var(--scroll-distance) * -1)); } }
 
-/* --- TEAM CARDS --- */
 .team-card {
     width: 260px; height: 400px; background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1);
@@ -313,8 +313,7 @@ footer { padding: 4rem; text-align: center; opacity: 0.6; font-size: 0.8rem; }
 
 /* ===============================================
    RESPONSIVE DESIGN (HAMBURGER MENU) 
-===============================================
-*/
+=============================================== */
 @media (max-width: 900px) {
     /* 1. Ajustes Generales */
     .section { padding: 60px 5%; }
@@ -324,32 +323,32 @@ footer { padding: 4rem; text-align: center; opacity: 0.6; font-size: 0.8rem; }
 
     /* 2. Navbar Container */
     .navbar {
-        width: 95%;
-        padding: 1rem;
-        /* Solo justifyContent: center no sirve porque el hamburger es absolute */
-        justify-content: center; 
+        width: 95%; padding: 1rem;
+        background: rgba(5,2,10,0.95); /* Fondo sólido en móvil */
+        justify-content: center; /* Base para alinear logo */
+        border-radius: 20px;
     }
 
-    /* 3. Logo Centrado */
+    /* 3. Logo Centrado Absolutamente */
     .nav-brand {
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
     }
 
-    /* 4. Hamburger Icon Visible (A la derecha) */
+    /* 4. Hamburger Icon Visible (Derecha Absoluta) */
     .hamburger {
         display: block;
         position: absolute;
         right: 20px;
     }
 
-    /* 5. Nav Links (Off-canvas / Fullscreen Overlay) */
+    /* 5. Nav Links (Menú desplegable pantalla completa) */
     .nav-container {
         position: fixed;
         top: 0; left: 0;
         width: 100%; height: 100vh;
-        background: rgba(5, 2, 10, 0.98); /* Fondo casi negro solido */
+        background: rgba(5, 2, 10, 0.98);
         backdrop-filter: blur(20px);
         flex-direction: column;
         justify-content: center;
@@ -357,46 +356,36 @@ footer { padding: 4rem; text-align: center; opacity: 0.6; font-size: 0.8rem; }
         gap: 2rem;
         transform: translateY(-120%); /* Oculto arriba */
         transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
-        z-index: 999; /* Debajo de la navbar visible */
+        z-index: 999;
     }
 
-    /* Clase activa para abrir menú */
-    .nav-container.active {
-        transform: translateY(0);
-    }
+    /* Mostrar menú al activar */
+    .nav-container.active { transform: translateY(0); }
 
-    /* Resetear estilos de links desktop */
+    /* Resetear estilos desktop de links */
     .nav-links {
+        position: relative; /* Quitar el absolute de desktop */
+        left: auto; transform: none;
         flex-direction: column;
         background: transparent;
-        gap: 2rem;
-        padding: 0;
+        gap: 2rem; padding: 0;
     }
 
     .nav-item {
-        font-size: 1.5rem; /* Letra grande en móvil */
-        font-weight: 700;
-        opacity: 0; /* Animación escalonada */
-        transform: translateY(20px);
-        transition: 0.3s;
+        font-size: 1.5rem; font-weight: 700;
+        opacity: 0; transform: translateY(20px); transition: 0.3s;
     }
 
-    /* Animación de entrada de links */
+    /* Animación de entrada escalonada */
     .nav-container.active .nav-item {
-        opacity: 1;
-        transform: translateY(0);
-        transition-delay: 0.2s;
+        opacity: 1; transform: translateY(0); transition-delay: 0.2s;
     }
 
-    /* Ocultar burbuja en móvil */
     .nav-bubble { display: none; }
 
-    /* Botón CTA en menú móvil */
     .cta-btn.mobile-cta {
-        margin-top: 1rem;
-        font-size: 1.2rem;
-        padding: 1rem 3rem;
-        transform: scale(0.9);
+        margin-top: 1rem; font-size: 1.2rem;
+        padding: 1rem 3rem; transform: scale(0.9);
     }
 
     /* 6. Animación del Icono Hamburguesa */
