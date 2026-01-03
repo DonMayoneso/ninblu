@@ -12,7 +12,7 @@
 
 * { 
     margin: 0; padding: 0; box-sizing: border-box; 
-    cursor: none; /* Cursor nativo oculto */
+    cursor: none; 
 }
 
 body {
@@ -24,7 +24,7 @@ body {
     -webkit-user-select: none;
 }
 
-body.menu-open { overflow: hidden; /* Bloquear scroll en móvil al abrir menú */ }
+body.menu-open { overflow: hidden; }
 
 /* Cursor Personalizado */
 .cursor-dot, .cursor-outline {
@@ -54,12 +54,10 @@ ul { list-style: none; }
 h1, h2, h3 { font-family: 'Inder', sans-serif; }
 ::-webkit-scrollbar { width: 0; }
 
-/* =========================================
-   NAVBAR (DESKTOP DEFAULT)
-   ========================================= */
+/* --- NAVBAR --- */
 .navbar {
     position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-    width: 90%; max-width: 1200px; padding: 0.8rem 1.5rem;
+    width: 90%; max-width: 1200px; padding: 0.5rem 1.5rem;
     background: rgba(10, 5, 20, 0.4);
     backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255,255,255,0.1); border-radius: 100px;
@@ -67,25 +65,32 @@ h1, h2, h3 { font-family: 'Inder', sans-serif; }
     z-index: 1000; transition: all 0.4s ease;
 }
 
-.nav-brand { display: flex; align-items: center; gap: 12px; z-index: 1002; }
+/* BRANDING HÍBRIDO (SVG + IMAGEN) */
+.nav-brand { 
+    display: flex; 
+    align-items: center; 
+    gap: 12px; /* Separación entre el ícono y el logo de texto */
+    z-index: 1002; 
+}
+
 .ninblu-icon.nav-size svg {
     width: 35px; height: auto; fill: var(--ninblu-purple);
     filter: drop-shadow(0 0 10px rgba(117, 44, 134, 0.5));
-}
-.nav-logo-text {
-    font-family: 'Inder', sans-serif; font-size: 1.2rem;
-    letter-spacing: 2px; color: #fff; text-transform: uppercase;
+    display: block; /* Asegura que no tenga espacio extra abajo */
 }
 
-/* Contenedor derecho (Solo el CTA en Desktop visualmente) */
+.nav-brand-img {
+    height: 35px; /* Ajustado para hacer match con el icono */
+    width: auto; object-fit: contain;
+    border-radius: 4px;
+}
+
 .nav-container { display: flex; align-items: center; }
 
-/* ARREGLO: Links centrados absolutamente en Desktop */
 .nav-links {
     display: flex; 
-    position: absolute; /* Truco para centrar perfectamente ignorando los lados */
-    left: 50%;
-    transform: translateX(-50%);
+    position: absolute; /* Centrado absoluto */
+    left: 50%; transform: translateX(-50%);
     background: rgba(255, 255, 255, 0.02);
     padding: 5px; border-radius: 50px;
 }
@@ -120,7 +125,6 @@ h1, h2, h3 { font-family: 'Inder', sans-serif; }
 .cta-btn:hover::before { width: 100%; }
 .cta-btn:hover { box-shadow: 0 0 20px var(--ninblu-pink); border-color: transparent; }
 
-/* Hamburger (Oculto en Desktop) */
 .hamburger { display: none; cursor: pointer; z-index: 1002; }
 .bar {
     display: block; width: 25px; height: 3px; margin: 5px auto;
@@ -131,7 +135,7 @@ h1, h2, h3 { font-family: 'Inder', sans-serif; }
 .hero {
     height: 100vh; display: flex; flex-direction: column;
     justify-content: center; align-items: center;
-    text-align: center; position: relative; padding: 0;
+    text-align: center; padding: 0; position: relative;
 }
 .hero-content { z-index: 2; }
 .hero-slogan {
@@ -161,19 +165,43 @@ section { padding: 80px 5%; position: relative; z-index: 2; }
 .section-header h2 { font-size: 3rem; margin-bottom: 1rem; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
 .section-header p { color: #aaa; max-width: 600px; font-size: 1.1rem; line-height: 1.6; }
 
-/* --- CARDS & GRID --- */
-.cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; }
+/* --- ABOUT (BENTO GRID CENTRADO) --- */
+.about-bento {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+    max-width: 1000px; margin: 0 auto;
+}
+
+/* Estilos de las cajas del Bento */
+.bento-full {
+    grid-column: 1 / -1; min-height: 250px;
+    display: flex; flex-direction: column; justify-content: center; align-items: center; /* Centrado H/V */
+    background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(117, 44, 134, 0.1) 100%);
+    text-align: center; /* Centrado de texto */
+}
+
+.bento-half {
+    min-height: 300px;
+    display: flex; flex-direction: column; justify-content: flex-start; align-items: center; /* Centrado H */
+    text-align: center; /* Centrado de texto */
+}
+
+.bento-title {
+    font-family: 'Inder', sans-serif; font-size: 2rem; color: var(--ninblu-yellow);
+    margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 2px;
+}
+
+.bento-text {
+    font-family: 'Montserrat', sans-serif; font-size: 1rem; line-height: 1.8; color: #ccc;
+    max-width: 90%; /* Evita que el texto toque los bordes */
+}
+
+/* --- TILT CARD / CARDS --- */
 .tilt-card {
     background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);
     padding: 3rem 2rem; border-radius: 20px; position: relative;
     transform-style: preserve-3d; transform: perspective(1000px);
     transition: transform 0.1s; backdrop-filter: blur(5px);
 }
-.tilt-card h3 { 
-    font-size: 1.5rem; margin-bottom: 1rem; color: var(--ninblu-yellow); 
-    transform: translateZ(20px); text-align: center;
-}
-.tilt-card p { color: #ccc; transform: translateZ(10px); text-align: center; }
 .tilt-card::after {
     content: ''; position: absolute; inset: 0; border-radius: 20px; padding: 2px;
     background: linear-gradient(135deg, transparent, var(--ninblu-purple), transparent);
@@ -183,6 +211,10 @@ section { padding: 80px 5%; position: relative; z-index: 2; }
     opacity: 0.5; transition: 0.3s;
 }
 .tilt-card:hover::after { opacity: 1; box-shadow: 0 0 20px rgba(117, 44, 134, 0.3); }
+
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; }
+.cards-grid h3 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--ninblu-yellow); transform: translateZ(20px); text-align: center; }
+.cards-grid p { color: #ccc; transform: translateZ(10px); text-align: center; }
 
 /* --- TEAM SYSTEM --- */
 .team-reveal-stage { position: relative; width: 100%; height: 500px; display: flex; justify-content: center; align-items: center; overflow: hidden; }
@@ -312,62 +344,51 @@ section { padding: 80px 5%; position: relative; z-index: 2; }
 footer { padding: 4rem; text-align: center; opacity: 0.6; font-size: 0.8rem; }
 
 /* ===============================================
-   RESPONSIVE DESIGN (HAMBURGER MENU) 
+   RESPONSIVE DESIGN (HAMBURGER & BENTO) 
 =============================================== */
 @media (max-width: 900px) {
-    /* 1. Ajustes Generales */
     .section { padding: 60px 5%; }
     .hero-title { font-size: 2.5rem; }
     .word-wrapper { min-width: 280px; max-width: 90vw; }
     .team-reveal-stage { height: 450px; }
 
-    /* 2. Navbar Container */
+    /* Navbar Container */
     .navbar {
         width: 95%; padding: 1rem;
-        background: rgba(5,2,10,0.95); /* Fondo sólido en móvil */
-        justify-content: center; /* Base para alinear logo */
+        background: rgba(5,2,10,0.95);
+        justify-content: center; /* Base */
         border-radius: 20px;
     }
 
-    /* 3. Logo Centrado Absolutamente */
+    /* Logo Centrado */
     .nav-brand {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
+        position: absolute; left: 50%; transform: translateX(-50%);
     }
+    .nav-brand-img { height: 35px; }
 
-    /* 4. Hamburger Icon Visible (Derecha Absoluta) */
+    /* Hamburger Icon Visible */
     .hamburger {
         display: block;
-        position: absolute;
-        right: 20px;
+        position: absolute; right: 20px;
     }
 
-    /* 5. Nav Links (Menú desplegable pantalla completa) */
+    /* Nav Links (Off-canvas) */
     .nav-container {
-        position: fixed;
-        top: 0; left: 0;
+        position: fixed; top: 0; left: 0;
         width: 100%; height: 100vh;
         background: rgba(5, 2, 10, 0.98);
         backdrop-filter: blur(20px);
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        flex-direction: column; justify-content: center; align-items: center;
         gap: 2rem;
-        transform: translateY(-120%); /* Oculto arriba */
+        transform: translateY(-120%);
         transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
         z-index: 999;
     }
-
-    /* Mostrar menú al activar */
     .nav-container.active { transform: translateY(0); }
 
-    /* Resetear estilos desktop de links */
     .nav-links {
-        position: relative; /* Quitar el absolute de desktop */
-        left: auto; transform: none;
-        flex-direction: column;
-        background: transparent;
+        position: relative; left: auto; transform: none;
+        flex-direction: column; background: transparent;
         gap: 2rem; padding: 0;
     }
 
@@ -375,11 +396,7 @@ footer { padding: 4rem; text-align: center; opacity: 0.6; font-size: 0.8rem; }
         font-size: 1.5rem; font-weight: 700;
         opacity: 0; transform: translateY(20px); transition: 0.3s;
     }
-
-    /* Animación de entrada escalonada */
-    .nav-container.active .nav-item {
-        opacity: 1; transform: translateY(0); transition-delay: 0.2s;
-    }
+    .nav-container.active .nav-item { opacity: 1; transform: translateY(0); transition-delay: 0.2s; }
 
     .nav-bubble { display: none; }
 
@@ -388,8 +405,11 @@ footer { padding: 4rem; text-align: center; opacity: 0.6; font-size: 0.8rem; }
         padding: 1rem 3rem; transform: scale(0.9);
     }
 
-    /* 6. Animación del Icono Hamburguesa */
+    /* Animación Hamburger */
     .hamburger.active .bar:nth-child(2) { opacity: 0; }
     .hamburger.active .bar:nth-child(1) { transform: translateY(8px) rotate(45deg); }
     .hamburger.active .bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+    /* Bento Grid Mobile (Apilar) */
+    .about-bento { grid-template-columns: 1fr; }
 }

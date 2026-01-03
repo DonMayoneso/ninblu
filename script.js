@@ -147,7 +147,7 @@ cards.forEach(card => {
 
 
 // --- 6. TEXT ROTATOR (HERO) ---
-const words = ["Audiovisual", "Sonoro", "Fotográfico", "de Marketing", "Visual", "Web", "de Animación", "de Diseño"];
+const words = ["Audiovisual", "Sonoro", "Fotográfico", "de Marketing", "Visual", "Web", "de Animación", "de Diseño", "Editorial", "Empresarial"];
 let wordIndex = 0;
 const wrapper = document.getElementById('word-rotator');
 
