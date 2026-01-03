@@ -3,8 +3,7 @@
    ========================================= */
 
 // --- 1. COMPONENTE DE LOGO SVG (DRY) ---
-// Se usa solo para inyectar el logo principal en la navbar y footer si es necesario.
-// NO se usa en las cartas de equipo (ahí usamos imágenes).
+// Se usa para inyectar el isotipo vectorial en lugares genéricos (Navbar, Footer, Decoración)
 class NinbluLogo {
     static getSVG() {
         return `
@@ -29,7 +28,7 @@ const navBubble = document.querySelector('.nav-bubble');
 const navLinks = document.querySelectorAll('.nav-item');
 const navContainer = document.querySelector('.nav-links');
 
-// Función Toggle para Móvil
+// Toggle Menú (Móvil)
 function toggleMenu() {
     const hamburger = document.querySelector(".hamburger");
     const navMenu = document.querySelector(".nav-container");
@@ -40,7 +39,7 @@ function toggleMenu() {
     body.classList.toggle("menu-open"); // Bloquear scroll
 }
 
-// Función Cerrar menú al hacer click en un link
+// Cerrar Menú (al clickear link)
 function closeMenu() {
     const hamburger = document.querySelector(".hamburger");
     const navMenu = document.querySelector(".nav-container");
@@ -51,7 +50,7 @@ function closeMenu() {
     body.classList.remove("menu-open");
 }
 
-// Lógica de la "Burbuja" (Solo Desktop)
+// Burbuja Magnética (Desktop Only)
 function moveBubble(target) {
     // Si estamos en móvil (ancho menor a 900px), no movemos la burbuja
     if(window.innerWidth <= 900 || !navBubble || !target) return;
@@ -66,7 +65,6 @@ if(navLinks.length > 0) {
         link.addEventListener('mouseenter', (e) => moveBubble(e.target));
     });
 
-    // Al salir del menú, volver al activo
     if(navContainer) {
         navContainer.addEventListener('mouseleave', () => {
             const activeLink = document.querySelector('.nav-item.active');
@@ -89,7 +87,6 @@ window.addEventListener('scroll', () => {
         if(link.getAttribute('href').includes(current)) link.classList.add('active');
     });
 
-    // Mover burbuja solo si no estamos haciendo hover manual
     if(navContainer && !navContainer.matches(':hover') && window.innerWidth > 900) {
         const active = document.querySelector('.nav-item.active');
         if(active) moveBubble(active);
@@ -97,7 +94,9 @@ window.addEventListener('scroll', () => {
 });
 
 
-// --- 3. LOGO PARALLAX INTERACTIVO (FONDO) ---
+// --- 3. EFECTOS VISUALES (FONDO & CURSOR) ---
+
+// A. Parallax Logo Fondo
 const bgLogo = document.getElementById('bg-logo-container');
 window.addEventListener('scroll', () => {
     const scrollY = window.scrollY;
@@ -106,8 +105,7 @@ window.addEventListener('scroll', () => {
     }
 });
 
-
-// --- 4. CURSOR PERSONALIZADO ---
+// B. Cursor Personalizado
 const cursorDot = document.querySelector('.cursor-dot');
 const cursorOutline = document.querySelector('.cursor-outline');
 
@@ -124,8 +122,7 @@ window.addEventListener('mousemove', (e) => {
     }, { duration: 500, fill: "forwards" });
 });
 
-
-// --- 5. TILT EFFECT (Efecto 3D en Tarjetas) ---
+// C. Tilt Effect (Tarjetas 3D)
 const cards = document.querySelectorAll('.tilt-card');
 cards.forEach(card => {
     card.addEventListener('mousemove', (e) => {
@@ -146,7 +143,7 @@ cards.forEach(card => {
 });
 
 
-// --- 6. TEXT ROTATOR (HERO) ---
+// --- 4. TEXT ROTATOR (HERO) ---
 const words = ["Audiovisual", "Sonoro", "Fotográfico", "de Marketing", "Visual", "Web", "de Animación", "de Diseño", "Editorial", "Empresarial"];
 let wordIndex = 0;
 const wrapper = document.getElementById('word-rotator');
@@ -175,11 +172,11 @@ if(wrapper) {
 }
 
 
-// --- 7. TEAM REVEAL SYSTEM (SOBRE & CARRUSEL) ---
+// --- 5. TEAM REVEAL SYSTEM (SOBRE & CARRUSEL & MODAL) ---
 let packAbierto = false;
 const track = document.getElementById('track');
 
-// A. Renderizado de Cartas
+// A. Renderizado de Cartas (Desde equipo.js)
 function renderCards() {
     if(!track || typeof teamData === 'undefined') return;
     track.innerHTML = '';
@@ -187,7 +184,7 @@ function renderCards() {
     teamData.forEach(member => {
         const skillsHTML = member.skills.map(skill => `<span class="spec-tag">${skill}</span>`).join('');
         
-        // Renderizamos con IMAGENES para los logos de departamento
+        // Render con IMAGEN para el logo
         const cardHTML = `
             <div class="team-card" style="--accent: ${member.color};" onclick="abrirModal(${member.id})">
                 <div class="card-inner">
@@ -215,21 +212,24 @@ function renderCards() {
     prepararCarruselSeamless();
 }
 
+// B. Carrusel Infinito (MEJORADO PARA MÓVIL)
 function prepararCarruselSeamless() {
     const cartas = Array.from(track.children);
     if(cartas.length === 0) return;
-    const cardWidth = 260; 
-    const gap = 40;
     
-    // Calculo para el CSS
+    const cardWidth = 260; 
+    const gap = 40; // Ojo: CSS móvil lo sobrescribe a 15px, pero para JS base sirve
     const anchoSet = (cardWidth + gap) * cartas.length;
+    
     document.documentElement.style.setProperty('--scroll-distance', `${anchoSet}px`);
 
-    // Clonar para loop infinito
-    cartas.forEach(c => track.appendChild(c.cloneNode(true)));
-    cartas.forEach(c => track.appendChild(c.cloneNode(true)));
+    // CLONADO AGRESIVO: Clonamos 4 veces para asegurar flujo continuo en móvil y desktop ancho
+    for (let i = 0; i < 4; i++) {
+        cartas.forEach(c => track.appendChild(c.cloneNode(true)));
+    }
 }
 
+// C. Apertura del Sobre
 function abrirSobre(lado) {
     if (packAbierto) return;
     packAbierto = true;
@@ -253,7 +253,7 @@ function abrirSobre(lado) {
     }, 900);
 }
 
-// B. Sistema Modal
+// D. Sistema Modal
 const modalOverlay = document.getElementById('modalOverlay');
 const mPic = document.getElementById('modalProfilePic');
 const mName = document.getElementById('modalName');
@@ -270,22 +270,19 @@ function abrirModal(id) {
 
     if(track) track.style.animationPlayState = 'paused';
 
-    // Poblar modal
+    // Poblar datos
     mPic.src = member.image;
     mName.textContent = member.name;
     mRole.textContent = member.role;
     mRole.style.color = member.color;
     mBio.textContent = member.bio;
     
-    // Logo específico en modal
+    // Inyectar imagen de logo en modal
     if(mLogoDiv) {
         mLogoDiv.innerHTML = `<img src="${member.logo}" alt="Logo Dept" style="width:100%; height:100%; object-fit:contain;">`;
     }
 
-    mSkills.innerHTML = member.skills.map(skill => 
-        `<span class="spec-tag">${skill}</span>`
-    ).join('');
-
+    mSkills.innerHTML = member.skills.map(skill => `<span class="spec-tag">${skill}</span>`).join('');
     modalOverlay.classList.add('active');
 }
 
@@ -296,13 +293,8 @@ function cerrarModal() {
     }, 400);
 }
 
-// Iniciar Team System al cargar
-document.addEventListener('DOMContentLoaded', () => {
-    renderCards();
-});
 
-
-// --- 8. THREE.JS UNIVERSE ---
+// --- 6. THREE.JS UNIVERSE (FONDO FIXED) ---
 const initUniverse = () => {
     const canvas = document.getElementById('universe-canvas');
     if(!canvas) return;
@@ -317,6 +309,7 @@ const initUniverse = () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(window.devicePixelRatio);
 
+    // Partículas (Estrellas)
     const pCount = 3000;
     const pos = new Float32Array(pCount * 3);
     const scales = new Float32Array(pCount);
@@ -332,6 +325,7 @@ const initUniverse = () => {
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     geo.setAttribute('aScale', new THREE.BufferAttribute(scales, 1));
 
+    // Shader para las estrellas
     const mat = new THREE.ShaderMaterial({
         uniforms: { uTime: {value: 0}, uColor: {value: new THREE.Color(0xffffff)} },
         vertexShader: `
@@ -357,6 +351,7 @@ const initUniverse = () => {
     const mesh = new THREE.Points(geo, mat);
     scene.add(mesh);
 
+    // Luz del Mouse
     const light = new THREE.PointLight(0xf4676f, 3, 60, 2);
     scene.add(light);
 
@@ -369,9 +364,11 @@ const initUniverse = () => {
     const animate = (t) => {
         requestAnimationFrame(animate);
         mat.uniforms.uTime.value = t*0.001;
+        
         light.position.x += (mouseX*50 - light.position.x)*0.05;
         light.position.y += (mouseY*30 - light.position.y)*0.05;
         light.position.z = 20;
+        
         mesh.rotation.y = t*0.0001;
         renderer.render(scene, camera);
     };
@@ -384,9 +381,44 @@ const initUniverse = () => {
     });
 };
 
-initUniverse();
 
-// Smooth Scroll para anchors internos
+// --- 7. SCROLL INMERSIVO OPTIMIZADO (SIN HUECOS NI FADE) ---
+const initImmersiveScroll = () => {
+    const section = document.querySelector('.immersive-section');
+    const content = document.getElementById('universe-text');
+    
+    if (!section || !content) return;
+
+    // Posición inicial CSS
+    content.style.top = "30vh"; 
+
+    window.addEventListener('scroll', () => {
+        const rect = section.getBoundingClientRect();
+        const sectionTop = rect.top;
+        const sectionHeight = section.offsetHeight;
+
+        // Activar si la sección está activa
+        if (sectionTop <= 0 && sectionTop > -sectionHeight) {
+            const progress = Math.abs(sectionTop); 
+            const speed = 0.8; 
+            
+            // Fórmula simple: subir texto sin tocar opacidad
+            const translateY = -(progress * speed);
+
+            content.style.transform = `translateY(${translateY}px)`;
+        }
+    });
+};
+
+
+// --- INICIALIZACIÓN GLOBAL ---
+document.addEventListener('DOMContentLoaded', () => {
+    renderCards();
+    initUniverse();
+    initImmersiveScroll();
+});
+
+// Scroll Suave en enlaces
 document.querySelectorAll('a[href^="#"]').forEach(a => {
     a.addEventListener('click', e => {
         e.preventDefault();
