@@ -1,7 +1,3 @@
-/* =========================================
-   BASE DE DATOS DEL EQUIPO (NINBLU TEAM)
-   ========================================= */
-
 const teamData = [
     {
         id: 1,
@@ -10,13 +6,13 @@ const teamData = [
         image: "assets/ponja.jpg",
         logo: "assets/sample.jpg",
         color: "#0984e3", // Azul
-        skills: ["Web Design", "Diseño UI", "Editorial"],
+        skills: ["Web Design", "Diseño", "Editorial"],
         bio: "Especialista en traducir conceptos abstractos en interfaces de usuario intuitivas y visualmente impactantes. Javier lidera el equipo de diseño web con un enfoque centrado en la experiencia del usuario y la estética funcional."
     },
     {
         id: 2,
         name: "Teodoro Wojtek",
-        role: "Es un señorito gei",
+        role: "Audiovisual & Administración",
         image: "assets/ponja.jpg",
         logo: "assets/sample.jpg",
         color: "#e74c3c", // Rojo

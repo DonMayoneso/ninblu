@@ -1,10 +1,6 @@
-/* =========================================
-   NINBLU CORE LOGIC
-   ========================================= */
+/* NINBLU CORE LOGIC - SYSTEM COMPLETE vFinal */
 
-// --- 1. COMPONENTE DE LOGO SVG (DRY) ---
-// Se usa solo para inyectar el logo principal en la navbar y footer si es necesario.
-// NO se usa en las cartas de equipo (ahí usamos imágenes).
+/* COMPONENTE DE LOGO SVG (DRY) */
 class NinbluLogo {
     static getSVG() {
         return `
@@ -15,7 +11,6 @@ class NinbluLogo {
         </svg>`;
     }
     static inject() {
-        // Inyectar solo donde no hay contenido previo (para no sobrescribir imágenes si las hubiera)
         document.querySelectorAll('.ninblu-icon:empty').forEach(el => {
             el.innerHTML = this.getSVG();
         });
@@ -23,13 +18,11 @@ class NinbluLogo {
 }
 NinbluLogo.inject();
 
-
-// --- 2. MENU HAMBURGUESA & NAVBAR ---
+/* MENU HAMBURGUESA & NAVBAR */
 const navBubble = document.querySelector('.nav-bubble');
 const navLinks = document.querySelectorAll('.nav-item');
 const navContainer = document.querySelector('.nav-links');
 
-// Función Toggle para Móvil
 function toggleMenu() {
     const hamburger = document.querySelector(".hamburger");
     const navMenu = document.querySelector(".nav-container");
@@ -37,10 +30,9 @@ function toggleMenu() {
 
     hamburger.classList.toggle("active");
     navMenu.classList.toggle("active");
-    body.classList.toggle("menu-open"); // Bloquear scroll
+    body.classList.toggle("menu-open");
 }
 
-// Función Cerrar menú al hacer click en un link
 function closeMenu() {
     const hamburger = document.querySelector(".hamburger");
     const navMenu = document.querySelector(".nav-container");
@@ -51,11 +43,8 @@ function closeMenu() {
     body.classList.remove("menu-open");
 }
 
-// Lógica de la "Burbuja" (Solo Desktop)
 function moveBubble(target) {
-    // Si estamos en móvil (ancho menor a 900px), no movemos la burbuja
     if(window.innerWidth <= 900 || !navBubble || !target) return;
-    
     navBubble.style.width = `${target.offsetWidth}px`;
     navBubble.style.left = `${target.offsetLeft}px`;
     navBubble.style.opacity = '1';
@@ -66,7 +55,6 @@ if(navLinks.length > 0) {
         link.addEventListener('mouseenter', (e) => moveBubble(e.target));
     });
 
-    // Al salir del menú, volver al activo
     if(navContainer) {
         navContainer.addEventListener('mouseleave', () => {
             const activeLink = document.querySelector('.nav-item.active');
@@ -75,7 +63,6 @@ if(navLinks.length > 0) {
     }
 }
 
-// Scroll Spy (Marca link activo al bajar)
 window.addEventListener('scroll', () => {
     let current = '';
     const sections = document.querySelectorAll('section');
@@ -89,15 +76,13 @@ window.addEventListener('scroll', () => {
         if(link.getAttribute('href').includes(current)) link.classList.add('active');
     });
 
-    // Mover burbuja solo si no estamos haciendo hover manual
     if(navContainer && !navContainer.matches(':hover') && window.innerWidth > 900) {
         const active = document.querySelector('.nav-item.active');
         if(active) moveBubble(active);
     }
 });
 
-
-// --- 3. LOGO PARALLAX INTERACTIVO (FONDO) ---
+/* LOGO PARALLAX INTERACTIVO (FONDO) */
 const bgLogo = document.getElementById('bg-logo-container');
 window.addEventListener('scroll', () => {
     const scrollY = window.scrollY;
@@ -106,8 +91,7 @@ window.addEventListener('scroll', () => {
     }
 });
 
-
-// --- 4. CURSOR PERSONALIZADO ---
+/* CURSOR PERSONALIZADO */
 const cursorDot = document.querySelector('.cursor-dot');
 const cursorOutline = document.querySelector('.cursor-outline');
 
@@ -124,29 +108,32 @@ window.addEventListener('mousemove', (e) => {
     }, { duration: 500, fill: "forwards" });
 });
 
+/* TILT EFFECT (Efecto 3D Inteligente) */
+function initTiltEffect() {
+    const cards = document.querySelectorAll('.tilt-card:not([data-tilt-init="true"])');
 
-// --- 5. TILT EFFECT (Efecto 3D en Tarjetas) ---
-const cards = document.querySelectorAll('.tilt-card');
-cards.forEach(card => {
-    card.addEventListener('mousemove', (e) => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        const rotateX = ((y - centerY) / centerY) * -10;
-        const rotateY = ((x - centerX) / centerX) * 10;
-        
-        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+    cards.forEach(card => {
+        card.setAttribute('data-tilt-init', 'true'); 
+
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = ((y - centerY) / centerY) * -10;
+            const rotateY = ((x - centerX) / centerX) * 10;
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
+        });
     });
+}
 
-    card.addEventListener('mouseleave', () => {
-        card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`;
-    });
-});
-
-
-// --- 6. TEXT ROTATOR (HERO) ---
+/* TEXT ROTATOR (HERO) */
 const words = ["Audiovisual", "Sonoro", "Fotográfico", "de Marketing", "Visual", "Web", "de Animación", "de Diseño", "Editorial", "Empresarial"];
 let wordIndex = 0;
 const wrapper = document.getElementById('word-rotator');
@@ -157,7 +144,7 @@ function updateWord() {
     span.textContent = words[wordIndex];
     span.className = 'dynamic-word';
     wrapper.appendChild(span);
-    void span.offsetWidth; // Trigger reflow
+    void span.offsetWidth; 
     span.classList.add('active');
     
     const oldSpans = wrapper.getElementsByTagName('span');
@@ -174,12 +161,10 @@ if(wrapper) {
     setInterval(updateWord, 3000);
 }
 
-
-// --- 7. TEAM REVEAL SYSTEM (SOBRE & CARRUSEL) ---
+/* TEAM REVEAL SYSTEM (SOBRE & CARRUSEL) */
 let packAbierto = false;
 const track = document.getElementById('track');
 
-// A. Renderizado de Cartas
 function renderCards() {
     if(!track || typeof teamData === 'undefined') return;
     track.innerHTML = '';
@@ -187,16 +172,13 @@ function renderCards() {
     teamData.forEach(member => {
         const skillsHTML = member.skills.map(skill => `<span class="spec-tag">${skill}</span>`).join('');
         
-        // Renderizamos con IMAGENES para los logos de departamento
         const cardHTML = `
             <div class="team-card" style="--accent: ${member.color};" onclick="abrirModal(${member.id})">
                 <div class="card-inner">
                     <div class="card-portrait-frame" style="border-bottom-color: ${member.color};">
-                        
                         <div class="agency-logo-badge">
                             <img src="${member.logo}" alt="Logo Dept" style="width:100%; height:100%; object-fit:contain;">
                         </div>
-
                         <div class="card-portrait"><img src="${member.image}" alt="${member.name}"></div>
                     </div>
                     <div class="card-content">
@@ -221,11 +203,9 @@ function prepararCarruselSeamless() {
     const cardWidth = 260; 
     const gap = 40;
     
-    // Calculo para el CSS
     const anchoSet = (cardWidth + gap) * cartas.length;
     document.documentElement.style.setProperty('--scroll-distance', `${anchoSet}px`);
 
-    // Clonar para loop infinito
     cartas.forEach(c => track.appendChild(c.cloneNode(true)));
     cartas.forEach(c => track.appendChild(c.cloneNode(true)));
 }
@@ -253,7 +233,6 @@ function abrirSobre(lado) {
     }, 900);
 }
 
-// B. Sistema Modal
 const modalOverlay = document.getElementById('modalOverlay');
 const mPic = document.getElementById('modalProfilePic');
 const mName = document.getElementById('modalName');
@@ -270,14 +249,12 @@ function abrirModal(id) {
 
     if(track) track.style.animationPlayState = 'paused';
 
-    // Poblar modal
     mPic.src = member.image;
     mName.textContent = member.name;
     mRole.textContent = member.role;
     mRole.style.color = member.color;
     mBio.textContent = member.bio;
     
-    // Logo específico en modal
     if(mLogoDiv) {
         mLogoDiv.innerHTML = `<img src="${member.logo}" alt="Logo Dept" style="width:100%; height:100%; object-fit:contain;">`;
     }
@@ -296,13 +273,7 @@ function cerrarModal() {
     }, 400);
 }
 
-// Iniciar Team System al cargar
-document.addEventListener('DOMContentLoaded', () => {
-    renderCards();
-});
-
-
-// --- 8. THREE.JS UNIVERSE ---
+/* THREE.JS UNIVERSE */
 const initUniverse = () => {
     const canvas = document.getElementById('universe-canvas');
     if(!canvas) return;
@@ -386,11 +357,274 @@ const initUniverse = () => {
 
 initUniverse();
 
-// Smooth Scroll para anchors internos
-document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', e => {
-        e.preventDefault();
-        const target = document.querySelector(a.getAttribute('href'));
-        if(target) target.scrollIntoView({ behavior:'smooth' });
+/* ALIADOS MARQUEE SYSTEM */
+function initAliadosMarquee() {
+    const tracks = document.querySelectorAll('.marquee-content');
+    
+    tracks.forEach(track => {
+        const items = Array.from(track.children);
+        if(items.length === 0) return;
+
+        items.forEach(item => {
+            const clone = item.cloneNode(true);
+            clone.setAttribute('aria-hidden', 'true');
+            track.appendChild(clone);
+        });
     });
+}
+
+/* API DE PROYECTOS (Integración Landing - FIXED) */
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx5kwzw5YRYKDmP0EpkqwPme3MWSIJIq3cLDdUGg-cvwGGrlEnn6hUy0xvhnmY9M-w2Yg/exec';
+
+function parseDate(dateStr) {
+    if(!dateStr) return new Date(0);
+    const [day, month, year] = dateStr.split('/');
+    return new Date(`${year}-${month}-${day}`);
+}
+
+async function fetchRecentProjects() {
+    const container = document.getElementById('landing-projects-list');
+    if(!container) return; 
+
+    try {
+        const response = await fetch(APPS_SCRIPT_URL, { redirect: 'follow' });
+        if (!response.ok) throw new Error('Error API');
+        
+        const data = await response.json();
+        console.log("Datos recibidos de Ninblu API:", data);
+
+        let projects = [];
+
+        data.forEach(item => {
+            if(!item.title) return;
+
+            const rawCats = item.categories ? String(item.categories) : 'General';
+            const catArray = rawCats.split(',').map(c => c.trim()).filter(c => c.length > 0);
+
+            const finalLink = item.linkUrl || item.link || item.url || item.website || item.enlace || "";
+            const finalLinkText = item.linkTxt || item.textoLink || "VER PROYECTO";
+
+            projects.push({
+                ...item,
+                linkUrl: finalLink, 
+                linkTxt: finalLinkText,
+                categoriesStr: catArray.join(' | '),
+                dateObj: parseDate(item.date)
+            });
+        });
+
+        projects.sort((a, b) => b.dateObj - a.dateObj);
+        
+        const top3 = projects.slice(0, 3);
+
+        container.innerHTML = ''; 
+        
+        top3.forEach(p => {
+            let mediaHtml = '';
+            const mediaSrc = p.media || ""; 
+            
+            if(mediaSrc.includes('.mp4')) {
+                mediaHtml = `<video src="${mediaSrc}" muted loop onmouseover="this.play()" onmouseout="this.pause()" style="width:100%; height:100%; object-fit:cover;"></video>`;
+            } else {
+                mediaHtml = `<img src="${mediaSrc}" alt="${p.title}">`;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'tilt-card project-mini-card';
+            
+            card.innerHTML = `
+                <div class="project-img">${mediaHtml}</div>
+                <div class="project-info">
+                    <h3>${p.title}</h3>
+                    <p>${p.categoriesStr}</p>
+                </div>
+            `;
+            
+            card.onclick = () => openProjectModal(p);
+            container.appendChild(card);
+        });
+
+        initTiltEffect();
+
+    } catch (e) {
+        console.error("Error cargando proyectos:", e);
+        container.innerHTML = '<p style="text-align:center; color:#888;">Próximamente más proyectos...</p>';
+    }
+}
+
+const pModalOverlay = document.getElementById('projectModalOverlay');
+const pMedia = document.getElementById('pModalMedia');
+const pTitle = document.getElementById('pModalTitle');
+const pDept = document.getElementById('pModalDept');
+const pLead = document.getElementById('pModalLead');
+const pDesc = document.getElementById('pModalDesc');
+const pLink = document.getElementById('pModalLink');
+
+function openProjectModal(p) {
+    if(!pModalOverlay) return;
+
+    pTitle.innerText = p.title || "Proyecto";
+    pDept.innerText = p.categoriesStr || "";
+    pLead.innerText = p.lead ? `Líder: ${p.lead}` : "";
+    pDesc.innerText = p.desc || "Descripción no disponible.";
+    
+    if(p.linkUrl && p.linkUrl.trim() !== "") {
+        pLink.style.display = 'inline-block';
+        pLink.href = p.linkUrl;
+        pLink.innerText = p.linkTxt || "VER PROYECTO";
+        pLink.target = "_blank"; 
+    } else {
+        pLink.style.display = 'none';
+    }
+
+    const mediaSrc = p.media || "";
+    if(mediaSrc.includes('.mp4')) {
+        pMedia.innerHTML = `<video src="${mediaSrc}" controls autoplay class="modal-video"></video>`;
+    } else {
+        pMedia.innerHTML = `<img src="${mediaSrc}" alt="${p.title}">`;
+    }
+
+    pModalOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeProjectModal() {
+    if(!pModalOverlay) return;
+    pModalOverlay.classList.remove('active');
+    document.body.style.overflow = 'auto';
+    const v = pMedia.querySelector('video');
+    if(v) v.pause();
+}
+
+/* FORMULARIO DE CONTACTO (Intl-Tel-Input + Validaciones + Web3Forms) */
+const contactForm = document.getElementById('contactForm');
+const formStatus = document.getElementById('form-status');
+const phoneInput = document.querySelector("#phone"); 
+
+let iti = null;
+if (phoneInput) {
+    iti = window.intlTelInput(phoneInput, {
+        initialCountry: "auto",
+        geoIpLookup: callback => {
+            fetch("https://ipapi.co/json")
+                .then(res => res.json())
+                .then(data => callback(data.country_code))
+                .catch(() => callback("ec")); 
+        },
+        utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.2.1/build/js/utils.js",
+        preferredCountries: ['ec', 'co', 'mx', 'es', 'us'],
+        separateDialCode: true,
+        
+        customPlaceholder: function(selectedCountryPlaceholder, selectedCountryData) {
+            return "Ej: " + selectedCountryPlaceholder + " (Opcional)";
+        }
+    });
+}
+
+if (contactForm) {
+    contactForm.addEventListener('submit', async function(event) {
+        event.preventDefault(); 
+        
+        const emailInput = contactForm.querySelector('input[name="email"]');
+        const msgInput = contactForm.querySelector('textarea[name="message"]');
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailInput.value)) {
+            formStatus.style.display = 'block';
+            formStatus.style.color = 'var(--ninblu-pink)';
+            formStatus.innerText = "Error: Ingresa un correo electrónico válido.";
+            return;
+        }
+
+        if (iti.getNumber()) { 
+            if (!iti.isValidNumber()) {
+                formStatus.style.display = 'block';
+                formStatus.style.color = 'var(--ninblu-pink)';
+                formStatus.innerText = "Error: El número de teléfono no es válido para el país seleccionado.";
+                return;
+            }
+        }
+
+        if (msgInput.value.trim().length < 5) {
+            formStatus.style.display = 'block';
+            formStatus.style.color = 'var(--ninblu-pink)';
+            formStatus.innerText = "Error: Cuéntanos un poco más sobre tu proyecto.";
+            return;
+        }
+
+        const btn = contactForm.querySelector('.submit-btn');
+        const originalBtnText = btn.innerText;
+        
+        btn.innerText = "ENVIANDO...";
+        btn.style.opacity = "0.7";
+        btn.disabled = true;
+        formStatus.style.display = 'none';
+
+        const formData = new FormData(contactForm);
+        
+        if (iti.getNumber()) {
+            formData.set('phone', iti.getNumber());
+        }
+
+        formData.append("access_key", "e9caf46c-0d41-403f-8f8f-144d8cf79e1e");
+        formData.append("subject", "Nuevo contacto desde Ninblu Web");
+        formData.append("from_name", "Ninblu Website");
+
+        try {
+            const response = await fetch("https://api.web3forms.com/submit", {
+                method: "POST",
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                formStatus.style.display = 'block';
+                formStatus.style.color = 'var(--ninblu-yellow)';
+                formStatus.innerText = "¡Mensaje Recibido! Pronto iniciaremos el viaje 🚀💫.";
+                contactForm.reset(); 
+            } else {
+                throw new Error(data.message);
+            }
+
+        } catch (error) {
+            formStatus.style.display = 'block';
+            formStatus.style.color = 'var(--ninblu-pink)';
+            formStatus.innerText = "Hubo una interferencia en la red. Intenta nuevamente.";
+            console.error('Error Web3Forms:', error);
+        } finally {
+            btn.innerText = originalBtnText;
+            btn.style.opacity = "1";
+            btn.disabled = false;
+        }
+    });
+}
+
+/* INICIALIZACIÓN GLOBAL & SCROLL INTELIGENTE (FIXED) */
+document.addEventListener('DOMContentLoaded', () => {
+    initTiltEffect();
+    renderCards();
+    initAliadosMarquee();
+    fetchRecentProjects();
+});
+
+document.addEventListener('click', e => {
+    const link = e.target.closest('a');
+    
+    if (!link) return;
+
+    const href = link.getAttribute('href');
+
+    if (href && href.startsWith('#') && href.length > 1) {
+        e.preventDefault(); 
+        
+        try {
+            const target = document.querySelector(href);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        } catch (err) {
+            console.warn("Scroll ignorado (ID no válido):", err);
+        }
+    }
 });
